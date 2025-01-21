@@ -36,11 +36,3 @@ resource "azurerm_virtual_network" "virtualNetwork" {
     environment = var.environment_tag
   }
 }
-
-# resource "azurerm_subnet" "userNodePoolSubnets" {
-#   count = var.usernodepoolCount
-#   address_prefixes = var.userNodePoolSubnetCIDR_Range[count.index]
-#   name = "${var.userNodePoolSubnetName}-${count.index}"
-#   virtual_network_name = azurerm_virtual_network.virtualNetwork.name
-#   resource_group_name= var.resource_group_name
-# }
