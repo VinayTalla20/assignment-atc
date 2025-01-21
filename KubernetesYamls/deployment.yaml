@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: assignment-app
+spec:
+  selector:
+    matchLabels:
+      app: assignment-app
+  template:
+    metadata:
+      labels:
+        app: assignment-app
+    spec:
+      containers:
+      - name: assignment-app
+        image: dockerregistryimage
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
