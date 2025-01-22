@@ -58,6 +58,8 @@ Navigate to App Folder, perfom Docker Build and Push
 
 # Navigate to Montering, setup prometheus, grafana, loki and prmomtail for application logs and metrics
 
+kubectl apply -f 'grafana-*.yaml' -l app=monitoring
+
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 helm upgrade --install loki-stack grafana/loki-stack -n logging --values grafana-prometheus-values.yaml
