@@ -1,65 +1,134 @@
-Prerequisites
-Tools Required:
+# Infrastructure Deployment and Application Setup Guide
 
-Terraform (>= 1.0)
-kubectl (>= 1.20)
-Docker (>= 20.10)
-Helm (>= 3.5, for Prometheus setup)
+## Prerequisites
 
-###  SetUp InfraStructure ### 
-Navigate to TerraformScripts dir
+### Tools Required:
+- **Terraform** (>= 1.0)
+- **kubectl** (>= 1.20)
+- **Docker** (>= 20.10)
+- **Helm** (>= 3.5, for Prometheus setup)
 
-# Authenticate azure Cloud using 
+---
 
-az login -u username -p password -t tenant_id   or   az login -username managed_identiy_client_id
+## Setup Infrastructure
 
-# 1. terraform validate the script check for any errors in the syntax
-  terraform validate
+1. **Navigate to the TerraformScripts directory**:
+   ```bash
+   cd TerraformScripts
+   ```
 
-# 2. initiliaze terraform backend with required providers will setup
-  terraform init -backend-config backend.tfvars
+2. **Authenticate with Azure Cloud**:
+   ```bash
+   az login -u <username> -p <password> -t <tenant_id>
+   ```
+   Alternatively, for Managed Identity:
+   ```bash
+   az login --identity --username <managed_identity_client_id>
+   ```
 
-# 3. terraform plan the script check everthing is able to create with the required authentication
-  terraform plan --var-file variables.tfvars
+3. **Validate the Terraform script**:
+   ```bash
+   terraform validate
+   ```
 
-# 4. Finally setup infra using apply, pass yes for the user prompt to accept and create listed resources
-  terraform apply --var-file variables.tfvars
+4. **Initialize Terraform backend with required providers**:
+   ```bash
+   terraform init -backend-config=backend.tfvars
+   ```
 
+5. **Check the Terraform plan**:
+   ```bash
+   terraform plan --var-file=variables.tfvars
+   ```
 
-### Docker BUild and Push  ###
+6. **Apply Terraform to set up the infrastructure**:
+   ```bash
+   terraform apply --var-file=variables.tfvars
+   ```
+   Pass `yes` to confirm and create the listed resources.
 
-Navigate to App Folder, perfom Docker Build and Push
+---
 
-# 1. Login to the Docker ACR using credentials
-  docker login -u username -p password registryurl
-  here username can be admin user or any Azure APP Registration with acr pull permissions can be used
+## Docker Build and Push
 
-# 2. build the require ddocker image
-  docker build -t ACRURL/reponame:tag .
+1. **Navigate to the App folder**:
+   ```bash
+   cd App
+   ```
 
-# 3. push the image to registry
-  docker push -t ACRURL/reponame:tag
+2. **Login to the Docker ACR**:
+   ```bash
+   docker login -u <username> -p <password> <registry_url>
+   ```
+   - `username`: Admin user or Azure App Registration with ACR pull permissions.
 
+3. **Build the Docker image**:
+   ```bash
+   docker build -t <ACR_URL>/<repository_name>:<tag> .
+   ```
 
-### Deploy to Kuberneres Cluster ###
+4. **Push the Docker image to the registry**:
+   ```bash
+   docker push <ACR_URL>/<repository_name>:<tag>
+   ```
 
-# Navigate to KubernetesYamls, apply deployment and service yamls files
-  az login -u username -p password -t tenant_id    or   az login -username managed_identiy_client_id
+---
 
- az account set --subscription azure_subscription_id
- az aks get-credentials --resource-group resource-group_name --name clisternme --overwrite-existing --admin
+## Deploy to Kubernetes Cluster
 
- kubectl get apply -f deployment.yaml
- kubectl get apply -f service.yaml
+1. **Navigate to Kubernetes YAMLs directory**:
+   ```bash
+   cd KubernetesYamls
+   ```
 
+2. **Authenticate with Azure Cloud**:
+   ```bash
+   az login -u <username> -p <password> -t <tenant_id>
+   ```
+   Alternatively, for Managed Identity:
+   ```bash
+   az login --identity --username <managed_identity_client_id>
+   ```
 
+3. **Set the Azure subscription**:
+   ```bash
+   az account set --subscription <azure_subscription_id>
+   ```
 
-### deploy montoring  setup in cluster ####
+4. **Get Kubernetes cluster credentials**:
+   ```bash
+   az aks get-credentials --resource-group <resource_group_name> --name <cluster_name> --overwrite-existing --admin
+   ```
 
-# Navigate to Montering, setup prometheus, grafana, loki and prmomtail for application logs and metrics
+5. **Deploy the application**:
+   ```bash
+   kubectl apply -f deployment.yaml
+   kubectl apply -f service.yaml
+   ```
 
-kubectl apply -f 'grafana-*.yaml' -l app=monitoring
+---
 
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo update
-helm upgrade --install loki-stack grafana/loki-stack -n logging --values grafana-prometheus-values.yaml
+## Deploy Monitoring Setup in Cluster
+
+1. **Navigate to the Monitoring directory**:
+   ```bash
+   cd Monitoring
+   ```
+
+2. **Set up Prometheus, Grafana, Loki, and Promtail for logs and metrics**:
+   - Apply Grafana configuration:
+     ```bash
+     kubectl apply -f 'grafana-*.yaml' -l app=monitoring
+     ```
+
+   - Add Grafana Helm repository:
+     ```bash
+     helm repo add grafana https://grafana.github.io/helm-charts
+     helm repo update
+     ```
+
+   - Install or upgrade Loki stack:
+     ```bash
+     helm upgrade --install loki-stack grafana/loki-stack -n logging --values grafana-prometheus-values.yaml
+     ```
+
