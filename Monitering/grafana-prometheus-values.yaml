@@ -29,8 +29,6 @@ loki:
     type: pvc
     enabled: true
     size: 20Gi
-    storageClassName: volumestorage
-    existingClaim: pvc-storage-prom
   existingSecretForConfig: loki
   config:
     compactor:
@@ -265,11 +263,6 @@ prometheus:
       operator: "Equal"
       value: "grafana"
       effect: "NoSchedule" 
-    persistentVolume:
-      enabled: false
-      size: 8Gi
-      storageClass: grafana
-      existingClaim: pvc-prometheus
   server:
     extraFlags: []
     defaultFlagsOverride:
